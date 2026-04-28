@@ -23,3 +23,15 @@ async function getWeather() {
 $('#get-weather-btn').on('click', function() {
     getWeather();
 });
+
+/*
+ 1.) fix alignment of values
+ 2.) implement a header identifying column values
+ 3.) implement feels like
+ 4.) implement quick emoji based on WMO weathercode
+ 5.) implement wind speed
+ 6.) implement remove card
+ 7.) handle wrong searches
+ 8.) handle all four UI states
+ 9.) implement enter for button submit
+*/

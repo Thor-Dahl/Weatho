@@ -79,6 +79,22 @@ button:hover {
 
 .other-info {
     display: flex;
-    gap: 20px;
+    gap: 10px;
     opacity: .5;
+}
+
+.other-info p:not(:last-child):after {
+    content: '•';
+    margin-left: 10px;
+}
+
+#city-name {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+#weather-icon {
+    margin-left: -13px;
+    width: 70px;
+    height: 70px;
 }

@@ -8,6 +8,7 @@ async function getWeather() {
 
     const weatherCard = `
         <div class="weather-card">
+            <button class="remove-btn">✕</button>
             <div class="temperature">
                 <img src="${weatherIcon}" id="weather-icon"/>
                 <p id="temperature-value">${Math.round(data.main.temp)}°C</p>
@@ -24,7 +25,13 @@ async function getWeather() {
         </div>
     `;
 
-    $('.weather-card-container').append(weatherCard);
+    //remove card
+    const $card = $(weatherCard);
+    $card.find('.remove-btn').on('click', function() {
+        $card.remove()
+    });
+
+    $('.weather-card-container').append($card);
 }
 
 $('#get-weather-btn').on('click', function() {

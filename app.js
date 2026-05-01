@@ -38,13 +38,40 @@ $('#get-weather-btn').on('click', function() {
     getWeather();
 });
 
+async function getSuggestions() {
+    const city = $('#city-input').val().trim();
+    const res = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=5&appid=${API_KEY}`)
+    const data = await res.json();
+
+    console.log(data);
+
+    $('.suggestions-container').empty();
+
+    data.forEach(function(sug) {
+        const city = sug.name;
+        const country = sug.country;
+
+        const item = `
+            <div class="suggestion">
+                <p class="suggestion-city-name">${city}</p>
+                <p class="suggestion-country-name">${country}</p>
+            </div>
+        `
+
+        $('.suggestions-container').append(item);
+    }) 
+}
+
+$('#city-input').on('keyup', function() {
+    getSuggestions();
+})
 /*
  ~ 1.) fix alignment of values
  ~ 2.) implement a header identifying column values
  ~ 3.) implement feels like
  ~ 4.) implement quick emoji based on WMO weathercode
  ~ 5.) implement wind speed
- 6.) implement remove card
+ ~ 6.) implement remove card
  7.) handle wrong searches
  8.) handle all four UI states
  9.) implement enter for button submit

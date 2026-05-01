@@ -118,3 +118,34 @@ button:hover {
     width: 70px;
     height: 70px;
 }
+
+.suggestions-container {
+    display: flex;
+    flex-direction: column;
+    width: 40vh;
+    border-radius: 20px;
+    background-color: none;
+    border: 2px rgb(43, 43, 43) solid;
+}
+
+.suggestion {
+    display: flex;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    padding-left: 20px;
+}
+
+.suggestion:not(:last-child) {
+    border-bottom: 1px solid rgb(43, 43, 43);
+}
+
+.suggestion p:not(:last-child)::after {
+    content: '•';
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.suggestion-country-name {
+    opacity: 0.4;
+    font-size: 14px;
+}

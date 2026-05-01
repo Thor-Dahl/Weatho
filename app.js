@@ -1,10 +1,19 @@
+function capitalizeFL(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function getWeatherIconURL(icon) {
+    return `https://openweathermap.org/img/wn/${icon}@2x.png`;
+}
+
 async function getWeather() {
     const city = $('#city-input').val().trim();
 
+    setState('loading');
     const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`);
     const data = await res.json();
-
-    const weatherIcon = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+    setState('success');
+    const weatherIcon = getWeatherIconURL(data.weather[0].icon);
 
     const weatherCard = `
         <div class="weather-card">
@@ -18,7 +27,7 @@ async function getWeather() {
                 <p id="country-name">feels like ${Math.round(data.main.feels_like)}°C</p>
             </div>
             <div class="other-info">
-                <p id="description">${data.weather[0].description.charAt(0).toUpperCase() + data.weather[0].description.slice(1)}</p>
+                <p id="description">${capitalizeFL(data.weather[0].description)}</p>
                 <p id="humidity">${data.main.humidity}%</p>
                 <p id="humidity">${data.wind.speed} km/h</p>
             </div>
@@ -34,16 +43,10 @@ async function getWeather() {
     $('.weather-card-container').append($card);
 }
 
-$('#get-weather-btn').on('click', function() {
-    getWeather();
-});
-
 async function getSuggestions() {
     const city = $('#city-input').val().trim();
     const res = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=5&appid=${API_KEY}`)
     const data = await res.json();
-
-    console.log(data);
 
     $('.suggestions-container').empty();
 
@@ -57,14 +60,43 @@ async function getSuggestions() {
                 <p class="suggestion-country-name">${country}</p>
             </div>
         `
+        const $item = $(item);
 
-        $('.suggestions-container').append(item);
+        $item.on('click', function() {
+            $('#city-input').val(city);
+            getWeather();
+            $('.suggestions-container').empty();
+            $('#city-input').val('');
+        })
+
+        $('.suggestions-container').append($item);
     }) 
 }
 
-$('#city-input').on('keyup', function() {
-    getSuggestions();
-})
+function setState(state) {
+    switch(state) {
+        case 'idle': break;
+        case 'loading': 
+            const loadingItem = `
+                <div class="loading weather-card" id="loading-card">
+                <p class="loading-icon">...</p>
+                </div>
+            `;
+            $('#loading-card').remove();
+            $('.weather-card-container').append(loadingItem)
+            break;
+        case 'success': 
+            $('#loading-card').remove();
+            break;
+        case 'error': break;
+    }
+}
+
+$('#get-weather-btn').on('click', getWeather);    // get weather when button is clicked
+$('#city-input').on('keyup', getSuggestions)    // suggestions popup when typing
+
+
+
 /*
  ~ 1.) fix alignment of values
  ~ 2.) implement a header identifying column values

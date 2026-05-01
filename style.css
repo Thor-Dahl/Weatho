@@ -133,6 +133,7 @@ button:hover {
     padding-top: 20px;
     padding-bottom: 20px;
     padding-left: 20px;
+    cursor: pointer;
 }
 
 .suggestion:not(:last-child) {
@@ -148,4 +149,9 @@ button:hover {
 .suggestion-country-name {
     opacity: 0.4;
     font-size: 14px;
+}
+
+.loading-icon {
+    margin: 30px;
+    font-size: 40px;
 }

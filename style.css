@@ -120,7 +120,7 @@ button:hover {
 }
 
 .suggestions-container {
-    display: flex;
+    display: none;
     flex-direction: column;
     width: 40vh;
     border-radius: 20px;

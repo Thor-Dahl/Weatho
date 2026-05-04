@@ -1,11 +1,59 @@
+class weatherCard {
+    constructor(data) {
+        this.temp = data.main.temp;
+        this.name = data.name;
+        this.humidity = data.main.humidity;
+        this.windSpeed = data.wind.speed;
+        this.feelsLike = data.main.feels_like;
+        this.description = capitalizeFL(data.weather[0].description);
+        this.weatherIcon = getWeatherIconURL(data.weather[0].icon);
+        this.$el = $(`
+            <div class="weather-card">
+                <button class="remove-btn">✕</button>
+                <div class="temperature">
+                    <img src="${this.weatherIcon}" id="weather-icon"/>
+                    <p id="temperature-value">${Math.round(this.temp)}°C</p>
+                </div>
+                <div class="city">
+                    <p id="city-name">${this.name}</p>
+                    <p id="country-name">feels like ${Math.round(this.feelsLike)}°C</p>
+                </div>
+                <div class="other-info">
+                    <p id="description">${this.description}</p>
+                    <p id="humidity">${this.humidity}%</p>
+                    <p id="humidity">${this.windSpeed} km/h</p>
+                </div>
+            </div>
+        `);
+        }
+    detColor() {
+        if (this.temp > 30) {
+                this.$el.css('border-color', 'orange');
+        } 
+        else if (this.temp > 20) {
+            this.$el.css('border-color', 'yellow');
+        }
+        else if (this.temp > 10) {
+            this.$el.css('border-color', 'green');
+        }
+        else if (this.temp > 0) {
+            this.$el.css('border-color', 'blue');
+        }
+        else {
+            this.$el.css('border-color', 'white');
+        }
+    }   
+}
+
+//HELPER: capitalizes the first letter of a string
 function capitalizeFL(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
-
+//HELPER: returns the link version of a weather icon
 function getWeatherIconURL(icon) {
     return `https://openweathermap.org/img/wn/${icon}@2x.png`;
 }
-
+//gets the weather data and displays data as a card
 async function getWeather() {
     const city = $('#city-input').val().trim();
 
@@ -23,61 +71,48 @@ async function getWeather() {
         setState('success');
 
         //build weather card
-        const weatherIcon = getWeatherIconURL(data.weather[0].icon);
-        const weatherCard = `
-            <div class="weather-card">
-                <button class="remove-btn">✕</button>
-                <div class="temperature">
-                    <img src="${weatherIcon}" id="weather-icon"/>
-                    <p id="temperature-value">${Math.round(data.main.temp)}°C</p>
-                </div>
-                <div class="city">
-                    <p id="city-name">${data.name}</p>
-                    <p id="country-name">feels like ${Math.round(data.main.feels_like)}°C</p>
-                </div>
-                <div class="other-info">
-                    <p id="description">${capitalizeFL(data.weather[0].description)}</p>
-                    <p id="humidity">${data.main.humidity}%</p>
-                    <p id="humidity">${data.wind.speed} km/h</p>
-                </div>
-            </div>
-        `;
+        const card = new weatherCard(data);
+        card.detColor();
         //remove card
-        const $card = $(weatherCard);
-        $card.find('.remove-btn').on('click', function() {
-            $card.remove()
+        card.$el.find('.remove-btn').on('click', function() {
+            card.$el.remove()
         });
-
-        $('.weather-card-container').append($card);
+        //append card
+        $('.weather-card-container').append(card.$el);
     } catch {
         setState('error');;
     }
-    
 }
-
+//gets the city suggestions based on typed text and city population and displays five search suggestions
 async function getSuggestions() {
     const city = $('#city-input').val().trim();
+    const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=5&language=en&format=json`)
+    const data = await res.json();
+    const results = data.results || [];
 
+    // hide container when no suggestions
     if (!city) {
         $('.suggestions-container').empty().hide();
         return;
     }
-
-    const res = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=5&appid=${API_KEY}`)
-    const data = await res.json();
-
-    $('.suggestions-container').empty();
-
-    if (data.length === 0) {
+    if (results.length === 0) {
         $('.suggestions-container').hide();
         return;
     }
-
     $('.suggestions-container').css('display', 'flex');
+    $('.suggestions-container').empty();
 
-    data.forEach(function(sug) {
+    //remove duplicate city in data array
+    const seenCities = new Set();
+    const uniqueCities = results.filter(city => {
+        if (seenCities.has(city.name)) return false;
+        seenCities.add(city.name); return true;
+    });
+
+    //create suggestion cards
+    uniqueCities.forEach(function(sug) {
         const city = sug.name;
-        const country = sug.country;
+        const country = sug.country_code;
 
         const item = `
             <div class="suggestion">
@@ -98,6 +133,7 @@ async function getSuggestions() {
     }) 
 }
 
+//implement 4 ui states for search
 function setState(state) {
     switch(state) {
         case 'idle': break;
